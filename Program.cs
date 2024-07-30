@@ -63,7 +63,7 @@
             Console.Write("Do you want to return to the main menu? (Y/N): ");
             string menu = Console.ReadLine();
 
-            if(menu.ToUpper() == "Y")
+            if (menu.ToUpper() == "Y")
             {
                 Console.Clear();
                 DisplayMenu();
