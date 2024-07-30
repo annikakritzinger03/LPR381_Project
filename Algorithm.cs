@@ -8,25 +8,32 @@ namespace LPR381_Project_GroupV5
 {
     internal static class Algorithm
     {
-        public static void PrimalSimplex(Model model)
+        public static List<Table> PrimalSimplex(Model model)
         {
-
+            List<Table> tableList = new List<Table>();
+            return tableList;
         }
-        public static void RevisedPrimalSimplex(Model model)
+        public static List<Table> RevisedPrimalSimplex(Model model)
         {
-
+            List<Table> tableList = new List<Table>();
+            return tableList;
         }
-        public static void BranchBound(Model model)
+        public static List<Table> BranchBound(Model model)
         {
-
+            List<Table> tableList = new List<Table>();
+            return tableList;
         }
-        public static void CuttingPlane(Model model)
+        public static List<Table> CuttingPlane(Model model)
         {
-
+            List<Table> tableList = new List<Table>();
+            return tableList;
         }
-        public static void Knapsack(Model model)
-        {
 
+        //Return type may change
+        public static List<Table> Knapsack(Model model)
+        {
+            List<Table> tableList = new List<Table>();
+            return tableList;
         }
     }
 }

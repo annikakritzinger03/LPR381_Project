@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace LPR381_Project_GroupV5
 {
+    //Base class: What is firstly extracted from the text file
     internal class Model
     {
+        public Model()
+        {
+        }
 
         public double[] ObjectiveFunctionCoefficients { get; set; }
         public List<Constraint> Constraints { get; set; }
@@ -19,5 +23,6 @@ namespace LPR381_Project_GroupV5
             Constraints = constraints;
             ConstraintRetrictions = constraintRetrictions;
         }
+
     }
 }
