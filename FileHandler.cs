@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace LPR381_Project_GroupV5
 {
@@ -15,10 +14,13 @@ namespace LPR381_Project_GroupV5
             string[] arr = new string[lines.Length];
             int counter = 0;
 
+            for (int i = 0; i < lines.Length; i++)
+            {
+                lines[i] = Regex.Replace(lines[i], @"(<=|>=|=)(\d)", "$1 $2");
+            }
             foreach (var line in lines)
             {
                 arr[counter] = line;
-                Console.WriteLine(line); // Display the line
                 counter++;
             }
 
@@ -75,26 +77,13 @@ namespace LPR381_Project_GroupV5
             // Convert list to array for constraint restrictions
             string[] constraintRestrictions = constraintRestrictionsList.ToArray();
 
-            // Print the constraints to verify
-            Console.WriteLine("Constraints:");
-            foreach (var constraint in constraints)
-            {
-                Console.WriteLine($"{string.Join(" ", constraint.Coefficients)} {constraint.Operator} {constraint.RHS}");
-            }
-
-            // Print the constraint restrictions to verify
-            Console.WriteLine("Constraint Restrictions:");
-            foreach (var restriction in constraintRestrictions)
-            {
-                Console.WriteLine(restriction);
-            }
-
             Model model = new Model(OFC, constraints, constraintRestrictions);
-
-
 
             return model;
         }
+
+
+
 
         public static void WriteToFile(string contents)
         {
