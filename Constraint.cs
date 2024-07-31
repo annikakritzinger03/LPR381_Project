@@ -8,8 +8,6 @@ namespace LPR381_Project_GroupV5
 {
     internal class Constraint
     {
-        //xi, si, ei, ai,...
-        public List<String> VariableList { get; set; }
         //Coefficients of variables
         public List<Double> CoefficientsList { get; set; }
         //<=, >= or =
@@ -17,9 +15,8 @@ namespace LPR381_Project_GroupV5
         //Righthandside
         public double RHS { get; set; }
 
-        public Constraint(List<String> variableList, List<Double> coefficientsList, string ctrtOperator, double rhs)
+        public Constraint(List<Double> coefficientsList, string ctrtOperator, double rhs)
         {
-            VariableList = variableList;
             CoefficientsList = coefficientsList;
             Operator = ctrtOperator;
             RHS = rhs;
