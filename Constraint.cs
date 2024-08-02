@@ -15,6 +15,7 @@ namespace LPR381_Project_GroupV5
         //Righthandside
         public double RHS { get; set; }
 
+
         public Constraint(List<Double> coefficientsList, string ctrtOperator, double rhs)
         {
             CoefficientsList = coefficientsList;
