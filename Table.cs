@@ -26,7 +26,7 @@ namespace LPR381_Project_GroupV5
             bool isInfeasible,
             bool isUnbounded
 
-        ) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.ConstraintRetrictions)
+        ) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
         {
             IsInitial = isInitial;
             IsOptimal = isOptimal;
@@ -45,7 +45,7 @@ namespace LPR381_Project_GroupV5
                 if (Constraints[i].Operator == "<=")
                 {
                     // For "<=" constraints, add an s variable
-                    Constraints[i].VariableList.Add($"s{i + 1}");
+
                     
                 }
                 else if (Constraints[i].Operator == ">=")

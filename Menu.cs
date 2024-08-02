@@ -88,7 +88,7 @@ namespace LPR381_Project_GroupV5
             Model model = ReadTextFile();
 
             DisplayAlgorithmMenu();
-            Console.Write("Please enter 1, 2, 3, 4 or 5: ");
+            Console.Write("\nPlease enter 1, 2, 3, 4 or 5: ");
             string input = Console.ReadLine();
 
             if (int.TryParse(input, out int userResponse))
@@ -157,12 +157,16 @@ namespace LPR381_Project_GroupV5
 
         private static Model ReadTextFile()
         {
-            Console.Write("Please provide the file path to the text file containing the LP/IP model: ");
+            Console.Write("Please provide the file path to the text file containing the LP/IP model (located in bin/Debug/net6.0): ");
             string filePath = Console.ReadLine();
 
             //Read text file contents and add to list of models
             Model model = FileHandler.ReadFromFile(filePath);
             modelsList.Add(model);
+
+            Console.WriteLine($"\n---------Your model as read from text file \"{filePath}\":---------");
+            Console.WriteLine(modelsList[0].ToString());
+            Console.WriteLine("----------------------------------------------------------------\n");
 
             return model;
         }

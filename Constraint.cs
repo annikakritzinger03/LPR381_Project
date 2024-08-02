@@ -22,5 +22,17 @@ namespace LPR381_Project_GroupV5
             Operator = ctrtOperator;
             RHS = rhs;
         }
+
+        public override string ToString()
+        {
+            string coefficients = "";
+            foreach (var coefficient in CoefficientsList)
+            {
+                coefficients += "+" + coefficient.ToString();
+            }
+
+            string display = $"{coefficients}  {Operator}  {RHS}\n";
+            return display;
+        }
     }
 }

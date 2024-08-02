@@ -33,8 +33,8 @@ namespace LPR381_Project_GroupV5
                 OFC[i - 1] = double.Parse(objectiveParts[i]);
             }
 
-            List<Constraint> constraints = new List<Constraint>();
-            List<string> constraintRestrictionsList = new List<string>();
+            List<Constraint> constraintsList = new List<Constraint>();
+            List<string> signRestrictionsList = new List<string>();
 
             // Parse constraints and constraint restrictions from remaining lines
             for (int i = 1; i < arr.Length; i++)
@@ -61,26 +61,25 @@ namespace LPR381_Project_GroupV5
                 if (numberCount == parts.Length - 1 && operatorCount == 1)
                 {
                     // Store the entire constraint line as is
-                    double[] coefficients = new double[numberCount - 1];
+                    List<double> coefficientsList = new List<double>();
                     for (int j = 0; j < numberCount - 1; j++)
                     {
-                        coefficients[j] = double.Parse(parts[j]);
+                        coefficientsList.Add(double.Parse(parts[j]));
                     }
                     double rhs = double.Parse(parts[numberCount]);
-                    constraints.Add(new Constraint(coefficients, operatorSymbol, rhs));
+                    constraintsList.Add(new Constraint(coefficientsList, operatorSymbol, rhs));
                 }
                 else
                 {
                     // Store in constraint restrictions
-                    constraintRestrictionsList.Add(arr[i]);
+                    signRestrictionsList.Add(arr[i]);
                 }
             }
 
             // Convert list to array for constraint restrictions
-            string[] constraintRestrictions = constraintRestrictionsList.ToArray();
+            string[] signRestrictions = signRestrictionsList.ToArray();
 
-            Model model = new Model(OFC, constraints, constraintRestrictions);
-
+            Model model = new Model(OFC, constraintsList, signRestrictions);
             return model;
         }
 
