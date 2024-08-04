@@ -31,7 +31,7 @@ namespace LPR381_Project_GroupV5
                 coefficients += "+" + coefficient.ToString();
             }
 
-            string display = $"{coefficients}  {Operator}  {RHS}\n";
+            string display = $"{coefficients} {Operator} {RHS}\n";
             return display;
         }
     }

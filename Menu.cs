@@ -118,7 +118,11 @@ namespace LPR381_Project_GroupV5
                     case 5:
                         Console.Clear();
                         //Branch and Bound Knapsack algorithm implementation
-                        tableList = Algorithm.Knapsack(model);
+                        List<KnapsackTable> kTableList = Algorithm.Knapsack(model);
+                        if(kTableList is null)
+                        {
+                            break;
+                        }
                         //foreach(Table table in tableList)
                         //{
                         //    Console.WriteLine(table.ToString());
@@ -132,7 +136,7 @@ namespace LPR381_Project_GroupV5
                         break;
                 }
 
-                Table initialTable = new Table(), optimalTable = new Table();
+                 Table initialTable = new Table(), optimalTable = new Table();
 
                 for (int i = 0; i < tableList.Count; i++)
                 {
@@ -146,8 +150,16 @@ namespace LPR381_Project_GroupV5
                     }
                 }
 
-                //Implement Sensitivity analysis
-                ConductSensitivityAnalysis(initialTable, optimalTable);
+                if(initialTable.IsInitial == false || optimalTable.IsOptimal == false)
+                {
+                    Console.WriteLine("Cannot conduct sensitivity analysis - there is no initial/optimal table.");
+                    ReturnToMenu();
+                }
+                else
+                {
+                    //Implement Sensitivity analysis
+                    ConductSensitivityAnalysis(initialTable, optimalTable);
+                }           
             }
             else
             {
@@ -168,7 +180,7 @@ namespace LPR381_Project_GroupV5
             Model model = FileHandler.ReadFromFile(filePath);
             modelsList.Add(model);
 
-            Console.WriteLine($"\n---------Your model as read from text file \"{filePath}\":---------");
+            Console.WriteLine($"\n---------Your model as read from text file \"{filePath}\":---------\n");
             Console.WriteLine(modelsList[0].ToString());
             Console.WriteLine("----------------------------------------------------------------\n");
 

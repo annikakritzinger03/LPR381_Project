@@ -78,7 +78,11 @@ namespace LPR381_Project_GroupV5
             // Handle the last line separately
             if (arr.Length > 1)
             {
-                signRestrictionsList.Add(arr[arr.Length - 1]);
+                string[] parts = arr[arr.Length-1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach(string part in parts)
+                {
+                    signRestrictionsList.Add(part);
+                }
             }
 
             // Convert list to array for constraint restrictions
@@ -90,7 +94,22 @@ namespace LPR381_Project_GroupV5
 
         public static void WriteToFile(string contents)
         {
+            string fileName = "results.txt";
 
+            try
+            {
+                // Create a new file and write the content to it
+                using (StreamWriter writer = new StreamWriter(fileName, false))
+                {
+                    writer.WriteLine(contents);
+                }
+
+                Console.WriteLine($"Content successfully written to {fileName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while writing to the file: {ex.Message}");
+            }
         }
 
         public static void OutputToConsole(string contents)
