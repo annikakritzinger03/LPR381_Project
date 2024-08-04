@@ -12,6 +12,7 @@ namespace LPR381_Project_GroupV5
         public bool IsOptimal { get; set; }
         public bool IsInfeasible { get; set; }
         public bool IsUnbounded { get; set; }
+        public bool IsCandidate { get; set; }
 
         //Initialise a blank table
         public Table() : base()
@@ -24,7 +25,8 @@ namespace LPR381_Project_GroupV5
             bool isInitial,
             bool isOptimal,
             bool isInfeasible,
-            bool isUnbounded
+            bool isUnbounded,
+            bool isCandidate
 
         ) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
         {
@@ -32,6 +34,7 @@ namespace LPR381_Project_GroupV5
             IsOptimal = isOptimal;
             IsInfeasible = isInfeasible;
             IsUnbounded = isUnbounded;
+            IsCandidate = isCandidate;
 
             //Convert table to canonical form so that it can be solved
             ConvertToCanonical();

@@ -119,6 +119,10 @@ namespace LPR381_Project_GroupV5
                         Console.Clear();
                         //Branch and Bound Knapsack algorithm implementation
                         tableList = Algorithm.Knapsack(model);
+                        //foreach(Table table in tableList)
+                        //{
+                        //    Console.WriteLine(table.ToString());
+                        //}
                         break;
                     default:
                         Console.Clear();
@@ -357,6 +361,7 @@ namespace LPR381_Project_GroupV5
         {
             Console.Clear();
             Console.WriteLine("Thank you for checking out our program! :)");
+            Thread.Sleep(3000);
             Environment.Exit(0);
         }
     }

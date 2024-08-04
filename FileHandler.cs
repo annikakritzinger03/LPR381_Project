@@ -37,7 +37,7 @@ namespace LPR381_Project_GroupV5
             List<string> signRestrictionsList = new List<string>();
 
             // Parse constraints and constraint restrictions from remaining lines
-            for (int i = 1; i < arr.Length; i++)
+            for (int i = 1; i < arr.Length - 1; i++)
             {
                 string[] parts = arr[i].Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 int numberCount = 0;
@@ -64,16 +64,21 @@ namespace LPR381_Project_GroupV5
                     List<double> coefficientsList = new List<double>();
                     for (int j = 0; j < numberCount - 1; j++)
                     {
-                        coefficientsList.Add(double.Parse(parts[j]));
+                        if (double.TryParse(parts[j], out _))
+                        {
+                            coefficientsList.Add(double.Parse(parts[j]));
+                        }
+               
                     }
-                    double rhs = double.Parse(parts[numberCount]);
+                    double rhs = double.Parse(parts[parts.Length-1]);
                     constraintsList.Add(new Constraint(coefficientsList, operatorSymbol, rhs));
                 }
-                else
-                {
-                    // Store in constraint restrictions
-                    signRestrictionsList.Add(arr[i]);
-                }
+            }
+
+            // Handle the last line separately
+            if (arr.Length > 1)
+            {
+                signRestrictionsList.Add(arr[arr.Length - 1]);
             }
 
             // Convert list to array for constraint restrictions

@@ -33,6 +33,20 @@ namespace LPR381_Project_GroupV5
         public static List<Table> Knapsack(Model model)
         {
             List<Table> tableList = new List<Table>();
+            
+            //Table initialTable = new Table(model, true, false, false, false, false)
+
+            //Determine the rank of variables
+            double[] ranks = new double[model.ObjectiveFunctionCoefficients.Length];
+
+
+            for(int i=0; i<model.ObjectiveFunctionCoefficients.Length; i++)
+            {
+                ranks[i] = model.ObjectiveFunctionCoefficients[i] / model.Constraints[0].CoefficientsList[i];
+                Console.WriteLine(ranks[i]);
+            }
+
+
             return tableList;
         }
     }
