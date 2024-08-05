@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LPR381_Project_GroupV5
 {
@@ -13,22 +12,19 @@ namespace LPR381_Project_GroupV5
         public bool IsInfeasible { get; set; }
         public bool IsUnbounded { get; set; }
         public bool IsCandidate { get; set; }
+        public List<double> ObjectiveFunction { get; set; }
+        public List<List<double>> ConstraintsMatrix { get; set; }
+        public List<double> RightHandSide { get; set; }
 
-        //Initialise a blank table
         public Table() : base()
         {
+            ObjectiveFunction = new List<double>();
+            ConstraintsMatrix = new List<List<double>>();
+            RightHandSide = new List<double>();
+            Results = new List<List<List<double>>>();  // Ensure Results is initialized
         }
 
-        //Initialise a table with a model's attributes
-        public Table (
-            Model model,
-            bool isInitial,
-            bool isOptimal,
-            bool isInfeasible,
-            bool isUnbounded,
-            bool isCandidate
-
-        ) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
+        public Table(Model model, bool isInitial, bool isOptimal, bool isInfeasible, bool isUnbounded, bool isCandidate) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
         {
             IsInitial = isInitial;
             IsOptimal = isOptimal;
@@ -36,10 +32,14 @@ namespace LPR381_Project_GroupV5
             IsUnbounded = isUnbounded;
             IsCandidate = isCandidate;
 
-            //Convert table to canonical form so that it can be solved
+            ObjectiveFunction = model.ObjectiveFunctionCoefficients.ToList();
+            ConstraintsMatrix = model.Constraints.Select(c => c.CoefficientsList.ToList()).ToList();
+            RightHandSide = model.Constraints.Select(c => c.RHS).ToList();
+
+            Results = new List<List<List<double>>>();  // Ensure Results is initialized
+
             ConvertToCanonical();
         }
-
 
         private void ConvertToCanonical()
         {
@@ -47,28 +47,50 @@ namespace LPR381_Project_GroupV5
             {
                 if (Constraints[i].Operator == "<=")
                 {
-                    // For "<=" constraints, add an s variable
-
-                    
+                    // Add slack variable
+                    ConstraintsMatrix[i].Add(1);
                 }
                 else if (Constraints[i].Operator == ">=")
                 {
-                    // For ">=" constraints, add an "e" variable and multiply the constraint by -1
-                    for (int j = 0; j < Constraints[i].CoefficientsList.Count; j++)
+                    // Add surplus variable and multiply constraint by -1
+                    for (int j = 0; j < ConstraintsMatrix[i].Count; j++)
                     {
-                        Constraints[i].CoefficientsList[j] *= -1;
+                        ConstraintsMatrix[i][j] *= -1;
                     }
-                    Constraints[i].RHS *= -1;
+                    RightHandSide[i] *= -1;
+                    ConstraintsMatrix[i].Add(1);
+                }
+                else
+                {
+                    // Add zero variable
+                    ConstraintsMatrix[i].Add(0);
                 }
             }
+
+            // Add zeros to the objective function for slack/surplus variables
+            for (int i = 0; i < Constraints.Count; i++)
+            {
+                ObjectiveFunction.Add(0);
+            }
+        }
+
+        public void AddResultStep(List<List<double>> step)
+        {
+            Results.Add(step);
         }
 
         public override string ToString()
         {
-            //Display the given table in an appropriate manner for console output (as well as for  the .txt file)
+            StringBuilder sb = new StringBuilder();
 
-            string tableDisplay = "";
-            return tableDisplay;
+            sb.AppendLine(string.Join("\t", ObjectiveFunction.Select(c => c.ToString("0.##"))));
+
+            for (int i = 0; i < ConstraintsMatrix.Count; i++)
+            {
+                sb.AppendLine(string.Join("\t", ConstraintsMatrix[i].Select(c => c.ToString("0.##"))) + "\t" + RightHandSide[i].ToString("0.##"));
+            }
+
+            return sb.ToString();
         }
     }
 }

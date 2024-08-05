@@ -94,7 +94,7 @@ namespace LPR381_Project_GroupV5
 
         public static void WriteToFile(string contents)
         {
-            string fileName = "results.txt";
+            string fileName = "C:\\Users\\pathf\\Downloads\\results.txt";
 
             try
             {
@@ -112,6 +112,25 @@ namespace LPR381_Project_GroupV5
             }
         }
 
+        public static void WriteToFile2(string contents)
+        {
+ 
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter("C:\\Users\\pathf\\Downloads\\results.txt", false))
+                {
+                    writer.WriteLine(contents);
+                }
+
+                Console.WriteLine($"Content successfully written to file C:\\\\Users\\\\pathf\\\\Downloads\\\\results.txt");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while writing to the file: {ex.Message}");
+            }
+        }
+
         public static void OutputToConsole(string contents)
         {
 
@@ -119,3 +138,4 @@ namespace LPR381_Project_GroupV5
     }
 
 }
+

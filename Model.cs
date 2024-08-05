@@ -13,8 +13,15 @@ namespace LPR381_Project_GroupV5
         public List<Constraint> Constraints { get; set; }
         public string[] SignRestrictions { get; set; }
 
+        // Add Results property to store intermediate steps and final results
+        public List<List<List<double>>> Results { get; set; }
+
+        // added a boolean object to make primal simplex changes work
+        public bool IsSolved { get; set; } = false;
+
         public Model()
         {
+            Results = new List<List<List<double>>>();
         }
 
         public Model(double[] objectiveFunctionCoefficients, List<Constraint> constraints, string[] signRetrictions)
@@ -22,6 +29,7 @@ namespace LPR381_Project_GroupV5
             ObjectiveFunctionCoefficients = objectiveFunctionCoefficients;
             Constraints = constraints;
             SignRestrictions = signRetrictions;
+            Results = new List<List<List<double>>>();
         }
 
         public override string ToString()
@@ -49,6 +57,5 @@ namespace LPR381_Project_GroupV5
                 $"Sign restrictions:\n{restrictions.ToString()}\n";
             return display;
         }
-
     }
 }

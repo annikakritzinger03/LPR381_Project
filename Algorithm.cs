@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LPR381_Project_GroupV5
 {
@@ -10,19 +9,234 @@ namespace LPR381_Project_GroupV5
     {
         public static List<Table> PrimalSimplex(Model model)
         {
-            List<Table> tableList = new List<Table>();
+            var tableList = new List<Table>();
+
+            try
+            {
+                var tableau = PutModelInCanonicalForm(model);
+                model.Results = new List<List<List<double>>>();  // Initialize the Results property
+                Solve(model, tableau);
+                model.IsSolved = true;
+
+                // Convert results to tableList
+                tableList = ConvertResultsToTables(model);
+
+                // Save results to file
+                string Path = "C:\\Users\\pathf\\Downloads\\results.txt";
+                SaveResultsToFile(model, Path);
+                Console.WriteLine($"Content successfully written to file \"{Path}\"");
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
             return tableList;
         }
+
+        private static List<List<double>> PutModelInCanonicalForm(Model model)
+        {
+            // Check for any >= constraints and throw an exception
+            foreach (var constraint in model.Constraints)
+            {
+                if (constraint.Operator == ">=")
+                {
+                    throw new InvalidOperationException("The Primal Simplex method does not support >= constraints.");
+                }
+            }
+
+            List<List<double>> tableau = new List<List<double>>();
+            tableau.Add(new List<double>());
+
+            foreach (var coefficient in model.ObjectiveFunctionCoefficients)
+            {
+                tableau[0].Add(coefficient * -1);
+            }
+
+            for (int i = 0; i < model.Constraints.Count; i++)
+            {
+                tableau[0].Add(0);
+            }
+            tableau[0].Add(0); // RHS for the objective function row
+
+            for (int i = 0; i < model.Constraints.Count; i++)
+            {
+                List<double> constraintValues = new List<double>(model.Constraints[i].CoefficientsList);
+
+                for (int j = 0; j < model.Constraints.Count; j++)
+                {
+                    if (j == i)
+                    {
+                        switch (model.Constraints[i].Operator)
+                        {
+                            case "<=":
+                                constraintValues.Add(1); // Slack variable
+                                break;
+                            case "=":
+                                constraintValues.Add(0); // No slack/surplus for equality constraint
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        constraintValues.Add(0);
+                    }
+                }
+
+                constraintValues.Add(model.Constraints[i].RHS);
+                tableau.Add(constraintValues);
+            }
+
+            return tableau;
+        }
+
+        private static void Solve(Model model, List<List<double>> tableau)
+        {
+            model.Results.Add(new List<List<double>>(tableau.Select(row => new List<double>(row))));
+            Iterate(model, tableau);
+        }
+
+        private static bool IsOptimal(Model model, List<List<double>> tableau)
+        {
+            bool isOptimal = true;
+
+            for (int i = 0; i < tableau[0].Count - 1; i++)
+            {
+                if (tableau[0][i] < 0)
+                {
+                    isOptimal = false;
+                    break;
+                }
+            }
+
+            return isOptimal;
+        }
+
+        private static void Iterate(Model model, List<List<double>> tableau)
+        {
+            if (IsOptimal(model, tableau))
+                return;
+
+            int pivotColumn = GetPivotColumn(model, tableau);
+            int pivotRow = GetPivotRow(model, tableau, pivotColumn);
+
+            if (pivotRow == -1)
+                throw new Exception("There is no suitable row to pivot on - the problem is infeasible");
+
+            Pivot(model, tableau, pivotRow, pivotColumn);
+            model.Results.Add(new List<List<double>>(tableau.Select(row => new List<double>(row))));
+            Iterate(model, tableau);
+        }
+
+        private static void Pivot(Model model, List<List<double>> tableau, int pivotRow, int pivotColumn)
+        {
+            double factor = 1 / tableau[pivotRow][pivotColumn];
+            for (int i = 0; i < tableau[pivotRow].Count; i++)
+            {
+                tableau[pivotRow][i] *= factor;
+            }
+
+            for (int i = 0; i < tableau.Count; i++)
+            {
+                if (i != pivotRow)
+                {
+                    double pivotColumnValue = tableau[i][pivotColumn];
+                    for (int j = 0; j < tableau[i].Count; j++)
+                    {
+                        tableau[i][j] -= pivotColumnValue * tableau[pivotRow][j];
+                    }
+                }
+            }
+        }
+
+        private static int GetPivotColumn(Model model, List<List<double>> tableau)
+        {
+            int colIndex = -1;
+            double mostNegative = 0;
+
+            for (int i = 0; i < tableau[0].Count - 1; i++)
+            {
+                if (tableau[0][i] < 0 && tableau[0][i] < mostNegative)
+                {
+                    mostNegative = tableau[0][i];
+                    colIndex = i;
+                }
+            }
+
+            return colIndex;
+        }
+
+        private static int GetPivotRow(Model model, List<List<double>> tableau, int pivotColumn)
+        {
+            int rowIndex = -1;
+            double lowestRatio = double.MaxValue;
+
+            for (int i = 1; i < tableau.Count; i++)
+            {
+                if (tableau[i][pivotColumn] > 0)
+                {
+                    double ratio = tableau[i][tableau[i].Count - 1] / tableau[i][pivotColumn];
+                    if (ratio < lowestRatio && ratio >= 0)
+                    {
+                        lowestRatio = ratio;
+                        rowIndex = i;
+                    }
+                }
+            }
+
+            return rowIndex;
+        }
+
+        private static List<Table> ConvertResultsToTables(Model model)
+        {
+            var tableList = new List<Table>();
+
+            for (int i = 0; i < model.Results.Count; i++)
+            {
+                var table = new Table
+                {
+                    ObjectiveFunction = model.Results[i][0],
+                    ConstraintsMatrix = model.Results[i].Skip(1).Select(row => row.Take(row.Count - 1).ToList()).ToList(),
+                    RightHandSide = model.Results[i].Skip(1).Select(row => row.Last()).ToList(),
+                    IsInitial = i == 0,
+                    IsOptimal = i == model.Results.Count - 1,
+                };
+
+                tableList.Add(table);
+            }
+
+            return tableList;
+        }
+
+        private static void SaveResultsToFile(Model model, string filePath)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine("Solution Steps:");
+                foreach (var step in model.Results)
+                {
+                    foreach (var row in step)
+                    {
+                        writer.WriteLine(string.Join("\t", row.Select(v => v.ToString("0.##"))));
+                    }
+                    writer.WriteLine(); // Add a blank line between tables for better readability
+                }
+            }
+        }
+
         public static List<Table> RevisedPrimalSimplex(Model model)
         {
             List<Table> tableList = new List<Table>();
             return tableList;
         }
+
         public static List<Table> BranchBound(Model model)
         {
             List<Table> tableList = new List<Table>();
             return tableList;
         }
+
         public static List<Table> CuttingPlane(Model model)
         {
             List<Table> tableList = new List<Table>();
@@ -40,7 +254,7 @@ namespace LPR381_Project_GroupV5
                 Console.WriteLine(error);
                 return error;
             }
-            
+
             foreach(string restriction in model.SignRestrictions)
             {
                 if (restriction != "bin")
@@ -66,7 +280,7 @@ namespace LPR381_Project_GroupV5
 
             var indexedRatios = ratios.Select((value, index) => new { Value = value, Index = index }).ToList();
             var sortedIndexedRatios = indexedRatios.OrderByDescending(x => x.Value).ToList();
-           
+
             for (int i = 0; i < sortedIndexedRatios.Count; i++)
             {
                 ranks.Add(sortedIndexedRatios[i].Index);
