@@ -118,15 +118,7 @@ namespace LPR381_Project_GroupV5
                     case 5:
                         Console.Clear();
                         //Branch and Bound Knapsack algorithm implementation
-                        List<KnapsackTable> kTableList = Algorithm.Knapsack(model);
-                        if(kTableList is null)
-                        {
-                            break;
-                        }
-                        //foreach(Table table in tableList)
-                        //{
-                        //    Console.WriteLine(table.ToString());
-                        //}
+                        Algorithm.Knapsack(model);
                         break;
                     default:
                         Console.Clear();
@@ -173,7 +165,7 @@ namespace LPR381_Project_GroupV5
 
         private static Model ReadTextFile()
         {
-            Console.Write("Please provide the file path to the text file containing the LP/IP model (located in bin/Debug/net6.0): ");
+            Console.Write("Please provide the file name (<name>.txt) of the text file containing the LP/IP model (located in bin/Debug/net6.0): ");
             string filePath = Console.ReadLine();
 
             //Read text file contents and add to list of models

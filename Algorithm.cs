@@ -30,13 +30,13 @@ namespace LPR381_Project_GroupV5
         }
 
         private static List<List<object>> itemCombinationsValues = new List<List<object>>();
-        public static List<KnapsackTable> Knapsack(Model model)
+        public static void Knapsack(Model model)
         {
             //Cases where Knapsack Algorithm would not work
             if (model.Constraints.Count != 1)
             {
                 Console.WriteLine("This problem cannot be solved with Knapsack - there may only be one constraint.");
-                return null;
+                return;
             }
             
             foreach(string restriction in model.SignRestrictions)
@@ -44,11 +44,9 @@ namespace LPR381_Project_GroupV5
                 if (restriction != "bin")
                 {
                     Console.WriteLine("This problem cannot be solved with Knapsack - decision variables are not binary.");
-                    return null;
+                    return;
                 }
-            }
-
-            List<KnapsackTable> tableList = new List<KnapsackTable>();          
+            } 
 
             //Determine the rank of variables and display relevant information
             List<double> ratios = new List<double>();
@@ -71,42 +69,17 @@ namespace LPR381_Project_GroupV5
             List<double> values = model.ObjectiveFunctionCoefficients.ToList();
             double[] weights = model.Constraints[0].CoefficientsList.ToArray();
 
-            PrintKnapsackRatioRanks(ratios, ranks, weights, values);
+            DisplayKnapsackRatioRanks(ratios, ranks, weights, values);
 
             // Call Knapsack method
             double limit = model.Constraints[0].RHS;
-            Knapsack("", ranks, new List<List<int>>(), limit, values, weights);
+            KnapsackAlgorithm("", ranks, new List<List<int>>(), limit, values, weights);
 
-            //Find the best combination
-            var maxVal = itemCombinationsValues.Max(c => (double)c[1]);
-            var maxIndex = itemCombinationsValues.FindIndex(c => (double)c[1] == maxVal);
-
-            var bestCombinations = (List<List<int>>)itemCombinationsValues[maxIndex][0];
-            for (int i = 0; i < bestCombinations.Count; i++)
-            {
-                bestCombinations[i][0] += 1; // Adjust index
-            }
-
-            // Print optimal knapsack items
-            Console.WriteLine("Optimal knapsack items:");
-            foreach (var item in bestCombinations)
-            {
-                Console.WriteLine(string.Join(", ", item));
-            }
-            Console.WriteLine("Total value: " + maxVal);
-
-
-
-
-            //-------------------------------------------------------------------------------------
-            //Create an intial Knapsack Table
-            KnapsackTable initialTable = new KnapsackTable(ranks);
-            initialTable.IsInitial = true;
-           
-            return tableList; 
+            DisplayOptimalSolution();
         }
 
-        public static void PrintKnapsackRatioRanks(List<double> ratioList, List<int> ranksList, double[] OFCoefficients, List<double> Constraintcoefficients )
+
+        public static void DisplayKnapsackRatioRanks(List<double> ratioList, List<int> ranksList, double[] OFCoefficients, List<double> Constraintcoefficients )
         {
             double[] weights =Constraintcoefficients.ToArray();
             double[] values = OFCoefficients;
@@ -117,38 +90,30 @@ namespace LPR381_Project_GroupV5
             string[] numbers = Enumerable.Range(1, weights.Length).Select(i => "x" + i).ToArray();
             string[] orderedNumbers = ranks.Select(index => numbers[index]).ToArray();
 
-            string[][] table = new string[weights.Length + 1][];
-            table[0] = columnNames;
+            // Determine column widths
+            int[] columnWidths = new int[]
+            {
+                Math.Max(columnNames[0].Length, numbers.Max(n => n.Length)),
+                Math.Max(columnNames[1].Length, values.Max(v => v.ToString().Length)),
+                Math.Max(columnNames[2].Length, weights.Max(w => w.ToString().Length)),
+                Math.Max(columnNames[3].Length, ratios.Max(r => r.ToString().Length)),
+                Math.Max(columnNames[4].Length, ranks.Max(r => r.ToString().Length)),
+                Math.Max(columnNames[5].Length, orderedNumbers.Max(o => o.Length))
+            };
+
+            // Display the header
+            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine($"{columnNames[0].PadRight(columnWidths[0] + 2)}{columnNames[1].PadRight(columnWidths[1] + 2)}{columnNames[2].PadRight(columnWidths[2] + 2)}{columnNames[3].PadRight(columnWidths[3] + 2)}{columnNames[4].PadRight(columnWidths[4] + 2)}{columnNames[5].PadRight(columnWidths[5] + 2)}");
+
+            // Display the rows
             for (int i = 0; i < weights.Length; i++)
             {
-                table[i + 1] = new string[]{
-                    numbers[i],
-                    values[i].ToString(),
-                    weights[i].ToString(),
-                    ratios[i].ToString(),
-                    ranks[i].ToString(),
-                    orderedNumbers[i]
-                };
+                Console.WriteLine($"{numbers[i].PadRight(columnWidths[0] + 2)}{values[i].ToString().PadRight(columnWidths[1] + 2)}{weights[i].ToString().PadRight(columnWidths[2] + 2)}{ratios[i].ToString().PadRight(columnWidths[3] + 2)}{ranks[i].ToString().PadRight(columnWidths[4] + 2)}{orderedNumbers[i].PadRight(columnWidths[5] + 2)}");
             }
-
-            // Print the table with the needed spacing to ensure neat formatting
-            int[] columnWidths = new int[6];
-            for (int i = 0; i < table[0].Length; i++)
-            {
-                columnWidths[i] = table.Max(row => row[i].Length);
-            }
-
-            for (int i = 0; i < table.Length; i++)
-            {
-                for (int j = 0; j < table[i].Length; j++)
-                {
-                    Console.Write(table[i][j].PadRight(columnWidths[j] + 2));
-                }
-                Console.WriteLine();
-            }
+            Console.WriteLine("-----------------------------------------------");
         }
 
-        private static void Knapsack(
+        private static void KnapsackAlgorithm(
             string currBranchID,
             List<int> currItems,
             List<List<int>> markedItemsAssumedValues,
@@ -274,11 +239,12 @@ namespace LPR381_Project_GroupV5
 
             if (branchForZero.Count > 0)
             {
-                Knapsack(currBranchID, currItems, branchForZero, maxWeight, itemValues, itemWeights);
-                Knapsack(currBranchID, currItems, branchForOne, maxWeight, itemValues, itemWeights);
+                KnapsackAlgorithm(currBranchID, currItems, branchForZero, maxWeight, itemValues, itemWeights);
+                KnapsackAlgorithm(currBranchID, currItems, branchForOne, maxWeight, itemValues, itemWeights);
             }
         }
 
+        public static int candidateCount = 0;
         private static void DisplayCalculationTable(
             string branchID,
             string branchString,
@@ -288,16 +254,29 @@ namespace LPR381_Project_GroupV5
             int candidateInfeasible,
             double valueTotal = 0)
         {
-            // Display the calculation table for the branch
-            Console.WriteLine("SP" + branchID + ": " + branchString);
-            Console.WriteLine("Variables\tCumulative Sum\tAnswer");
+            // Display the branch information
+            Console.WriteLine($"SP{branchID}: {branchString}");
+
+            // Determine column widths
+            int varWidth = Math.Max("Variables".Length, variables.Max(v => v.Length));
+            int cumSumWidth = Math.Max("Cumulative Sum".Length, cumSums.Max(c => c.ToString().Length));
+            int answerWidth = Math.Max("Answer".Length, answers.Max(a => a.ToString().Length));
+
+            // Display the header
+            Console.WriteLine($"{"Variables".PadRight(varWidth)}  {"Cumulative Sum".PadRight(cumSumWidth)}  {"Answer".PadRight(answerWidth)}");
+
+            // Display the rows
             for (int i = 0; i < variables.Count; i++)
             {
-                Console.WriteLine(variables[i] + "\t" + cumSums[i] + "\t" + answers[i]);
+                Console.WriteLine($"{variables[i].PadRight(varWidth)}  {cumSums[i].ToString().PadRight(cumSumWidth)}  {Math.Round(answers[i],3).ToString().PadRight(answerWidth)}");
             }
+
+            
+            // Display candidate infeasibility information
             if (candidateInfeasible == 1)
             {
-                Console.WriteLine("Candidate: " + valueTotal);
+                candidateCount++;
+                Console.WriteLine($"Candidate {candidateCount}: {valueTotal}");
             }
             else if (candidateInfeasible == 2)
             {
@@ -305,7 +284,27 @@ namespace LPR381_Project_GroupV5
             }
             Console.WriteLine();
         }
+        private static void DisplayOptimalSolution()
+        {
+            //Find the best combination
+            var maxVal = itemCombinationsValues.Max(c => (double)c[1]);
+            var maxIndex = itemCombinationsValues.FindIndex(c => (double)c[1] == maxVal);
 
+            var bestCombinations = (List<List<int>>)itemCombinationsValues[maxIndex][0];
+            for (int i = 0; i < bestCombinations.Count; i++)
+            {
+                bestCombinations[i][0] += 1; // Adjust index
+            }
 
+            // Print optimal knapsack items
+            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine("Optimal knapsack solution:");
+            foreach (var item in bestCombinations)
+            {
+                Console.WriteLine(string.Join(" = ", item));
+            }
+            Console.WriteLine("Optimal z value: " + maxVal);
+            Console.WriteLine("-----------------------------------------------");
+        }
     }
 }
