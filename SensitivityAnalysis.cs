@@ -53,14 +53,20 @@ namespace LPR381_Project_GroupV5
         {
 
         }
+
+        //To be implemented by Annika
         public static void ApplyDuality(Table initialTable, Table optimalTable)
         {
 
         }
+
+        //To be implemented by Annika
         public static void SolveDuality(Table initialTable, Table optimalTable)
         {
 
         }
+
+        //To be implemented by Annika
         public static void StrongWeakDuality(Table initialTable, Table optimalTable)
         {
 

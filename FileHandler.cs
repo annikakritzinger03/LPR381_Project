@@ -104,7 +104,7 @@ namespace LPR381_Project_GroupV5
                     writer.WriteLine(contents);
                 }
 
-                Console.WriteLine($"Content successfully written to {fileName}");
+                Console.WriteLine($"Content successfully written to file \"{fileName}\"");
             }
             catch (Exception ex)
             {

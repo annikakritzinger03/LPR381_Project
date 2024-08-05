@@ -30,23 +30,29 @@ namespace LPR381_Project_GroupV5
         }
 
         private static List<List<object>> itemCombinationsValues = new List<List<object>>();
-        public static void Knapsack(Model model)
+        private static string displayKnapsack = "";
+        public static string Knapsack(Model model)
         {
-            //Cases where Knapsack Algorithm would not work
+            //Cases where Knapsack Algorithm would not work for the model
             if (model.Constraints.Count != 1)
             {
-                Console.WriteLine("This problem cannot be solved with Knapsack - there may only be one constraint.");
-                return;
+                string error = "This problem cannot be solved with Knapsack - there may only be one constraint.";
+                Console.WriteLine(error);
+                return error;
             }
             
             foreach(string restriction in model.SignRestrictions)
             {
                 if (restriction != "bin")
                 {
-                    Console.WriteLine("This problem cannot be solved with Knapsack - decision variables are not binary.");
-                    return;
+                    string error = "This problem cannot be solved with Knapsack - decision variables are not binary.";
+                    Console.WriteLine(error);
+                    return error;
                 }
-            } 
+            }
+
+            //Add initial model to the string that will be returned
+            displayKnapsack += model.ToString();
 
             //Determine the rank of variables and display relevant information
             List<double> ratios = new List<double>();
@@ -69,13 +75,18 @@ namespace LPR381_Project_GroupV5
             List<double> values = model.ObjectiveFunctionCoefficients.ToList();
             double[] weights = model.Constraints[0].CoefficientsList.ToArray();
 
+            //Display Ratio and ranks in tabular format
             DisplayKnapsackRatioRanks(ratios, ranks, weights, values);
 
-            // Call Knapsack method
+            // Call Knapsack method that will implement the algorithm
             double limit = model.Constraints[0].RHS;
             KnapsackAlgorithm("", ranks, new List<List<int>>(), limit, values, weights);
 
+            //d=Display the optimal solution's decision variables and z value
             DisplayOptimalSolution();
+
+            //Return string that contains the model, ratios/ranks, tables, and solution
+            return displayKnapsack;
         }
 
 
@@ -102,15 +113,21 @@ namespace LPR381_Project_GroupV5
             };
 
             // Display the header
-            Console.WriteLine("-----------------------------------------------");
-            Console.WriteLine($"{columnNames[0].PadRight(columnWidths[0] + 2)}{columnNames[1].PadRight(columnWidths[1] + 2)}{columnNames[2].PadRight(columnWidths[2] + 2)}{columnNames[3].PadRight(columnWidths[3] + 2)}{columnNames[4].PadRight(columnWidths[4] + 2)}{columnNames[5].PadRight(columnWidths[5] + 2)}");
+            Console.Write("-----------------------------------------------");
+            string header = $"\n{columnNames[0].PadRight(columnWidths[0] + 2)}{columnNames[1].PadRight(columnWidths[1] + 2)}{columnNames[2].PadRight(columnWidths[2] + 2)}{columnNames[3].PadRight(columnWidths[3] + 2)}{columnNames[4].PadRight(columnWidths[4] + 2)}{columnNames[5].PadRight(columnWidths[5] + 2)}\n";
+            Console.Write(header);
+            displayKnapsack += header;
 
             // Display the rows
+            string rows = "";
             for (int i = 0; i < weights.Length; i++)
             {
-                Console.WriteLine($"{numbers[i].PadRight(columnWidths[0] + 2)}{values[i].ToString().PadRight(columnWidths[1] + 2)}{weights[i].ToString().PadRight(columnWidths[2] + 2)}{ratios[i].ToString().PadRight(columnWidths[3] + 2)}{ranks[i].ToString().PadRight(columnWidths[4] + 2)}{orderedNumbers[i].PadRight(columnWidths[5] + 2)}");
+                string row = $"{numbers[i].PadRight(columnWidths[0] + 2)}{values[i].ToString().PadRight(columnWidths[1] + 2)}{weights[i].ToString().PadRight(columnWidths[2] + 2)}{ratios[i].ToString().PadRight(columnWidths[3] + 2)}{ranks[i].ToString().PadRight(columnWidths[4] + 2)}{orderedNumbers[i].PadRight(columnWidths[5] + 2)}\n";
+                Console.Write(row);
+                rows += row;
             }
             Console.WriteLine("-----------------------------------------------");
+            displayKnapsack += rows;
         }
 
         private static void KnapsackAlgorithm(
@@ -255,7 +272,9 @@ namespace LPR381_Project_GroupV5
             double valueTotal = 0)
         {
             // Display the branch information
-            Console.WriteLine($"SP{branchID}: {branchString}");
+            string branchName = $"SP{branchID}: {branchString}\n";
+            Console.Write(branchName);
+            displayKnapsack += "\n" + branchName;
 
             // Determine column widths
             int varWidth = Math.Max("Variables".Length, variables.Max(v => v.Length));
@@ -263,24 +282,33 @@ namespace LPR381_Project_GroupV5
             int answerWidth = Math.Max("Answer".Length, answers.Max(a => a.ToString().Length));
 
             // Display the header
-            Console.WriteLine($"{"Variables".PadRight(varWidth)}  {"Cumulative Sum".PadRight(cumSumWidth)}  {"Answer".PadRight(answerWidth)}");
+
+            string header = $"{"Variables".PadRight(varWidth)}  {"Cumulative Sum".PadRight(cumSumWidth)}  {"Answer".PadRight(answerWidth)}\n";
+            Console.Write(header);
+            displayKnapsack += header;
 
             // Display the rows
+            string rows = "";
             for (int i = 0; i < variables.Count; i++)
             {
-                Console.WriteLine($"{variables[i].PadRight(varWidth)}  {cumSums[i].ToString().PadRight(cumSumWidth)}  {Math.Round(answers[i],3).ToString().PadRight(answerWidth)}");
+                string row = $"{variables[i].PadRight(varWidth)}  {cumSums[i].ToString().PadRight(cumSumWidth)}  {Math.Round(answers[i], 3).ToString().PadRight(answerWidth)}\n";
+                Console.Write(row);
+                rows += row;
             }
+            displayKnapsack += rows;
 
-            
             // Display candidate infeasibility information
             if (candidateInfeasible == 1)
             {
                 candidateCount++;
-                Console.WriteLine($"Candidate {candidateCount}: {valueTotal}");
+                string optimalCandidate = $"Candidate {candidateCount}: {valueTotal}\n";
+                Console.Write(optimalCandidate);
+                displayKnapsack += optimalCandidate;
             }
             else if (candidateInfeasible == 2)
             {
                 Console.WriteLine("Infeasible");
+                displayKnapsack += "Infeasible\n";
             }
             Console.WriteLine();
         }
@@ -299,11 +327,20 @@ namespace LPR381_Project_GroupV5
             // Print optimal knapsack items
             Console.WriteLine("-----------------------------------------------");
             Console.WriteLine("Optimal knapsack solution:");
+            displayKnapsack += "\nOptimal knapsack solution:\n";
+
+            string combinations = "";
             foreach (var item in bestCombinations)
             {
-                Console.WriteLine(string.Join(" = ", item));
+                string combination = string.Join(" = ", item);
+                Console.WriteLine(combination);
+                combinations += combination + "\n";
             }
-            Console.WriteLine("Optimal z value: " + maxVal);
+            displayKnapsack += combinations;
+
+            string optimalZ = "Optimal z value: " + maxVal;
+            Console.WriteLine(optimalZ);
+            displayKnapsack += optimalZ + "\n";
             Console.WriteLine("-----------------------------------------------");
         }
     }
