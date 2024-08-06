@@ -88,7 +88,7 @@ namespace LPR381_Project_GroupV5
             Model model = ReadTextFile();
 
             DisplayAlgorithmMenu();
-            Console.Write("\nPlease enter 1, 2, 3, 4 or 5: ");
+            Console.Write("\nPlease enter a number between 1 and 6 (both included): ");
             string input = Console.ReadLine();
 
             if (int.TryParse(input, out int userResponse))
@@ -97,39 +97,51 @@ namespace LPR381_Project_GroupV5
                 {
                     case 1:
                         Console.Clear();
-                        //Primal Simplex algorithm implementation (canonical form, solve, display, output to .txt)
+                        //Primal Simplex algorithm implementation
+                        DisplayModel();
                         tableList = Algorithm.PrimalSimplex(model);
-                        foreach(Table table in tableList)
+                        if(tableList.Count >= 1)
                         {
-                            Console.WriteLine(table.ToString());
+                            foreach (Table table in tableList)
+                            {
+                                Console.WriteLine(table.ToString());
+                            }
+                            Algorithm.SaveResultsToFile(model);
                         }
-                        Algorithm.SaveResultsToFile(model);
                         break;
                     case 2:
                         Console.Clear();
                         //Primal Simplex Revised algorithm implementation
+                        DisplayModel();
                         tableList = Algorithm.RevisedPrimalSimplex(model);
                         break;
                     case 3:
                         Console.Clear();
                         //Branch and Bound Simplex algorithm implementation
+                        DisplayModel();
                         tableList = Algorithm.BranchBound(model);
                         break;
                     case 4:
                         Console.Clear();
                         //Cutting Plane algorithm implementation
+                        DisplayModel();
                         tableList = Algorithm.CuttingPlane(model);
                         break;
                     case 5:
                         Console.Clear();
                         //Branch and Bound Knapsack algorithm implementation
+                        DisplayModel();
                         string knapsack = Algorithm.Knapsack(model);
                         FileHandler.WriteToFile(knapsack);
+                        break;
+                    case 6:
+                        Console.Clear();
+                        ReturnToMenu();
                         break;
                     default:
                         Console.Clear();
                         Console.WriteLine($"\"{userResponse}\" is not a valid option...\n" +
-                            $"Please enter a number that is either 1, 2, 3, 4 or 5");
+                            $"Please enter a number between 1 and 6 (both included)");
                         SolveModel();
                         break;
                 }
@@ -156,7 +168,7 @@ namespace LPR381_Project_GroupV5
                 else
                 {
                     //Implement Sensitivity analysis
-                    ConductSensitivityAnalysis(initialTable, optimalTable);
+                    ConductSensitivityAnalysis(model, initialTable, optimalTable);
                 }
             }
             else
@@ -173,16 +185,25 @@ namespace LPR381_Project_GroupV5
         {
             Console.Write("Please provide the file name (<name>.txt) of the text file containing the LP/IP model (located in bin/Debug/net6.0): ");
             string filePath = Console.ReadLine();
+            if (filePath == "")
+            {
+                filePath = "info.txt";
+            }
 
             //Read text file contents and add to list of models
             Model model = FileHandler.ReadFromFile(filePath);
             modelsList.Add(model);
-
-            Console.WriteLine($"\n---------Your model as read from text file \"{filePath}\":---------\n");
-            Console.WriteLine(modelsList[0].ToString());
-            Console.WriteLine("----------------------------------------------------------------\n");
+ 
+            DisplayModel();
 
             return model;
+        }
+
+        private static void DisplayModel()
+        {
+            Console.WriteLine($"\n---------Your model as read from the input text file:---------\n");
+            Console.WriteLine(modelsList[0].ToString());
+            Console.WriteLine("----------------------------------------------------------------\n");
         }
 
         static void DisplayAlgorithmMenu()
@@ -192,10 +213,11 @@ namespace LPR381_Project_GroupV5
                 "\t2. Primal Simplex Revised\n" +
                 "\t3. Branch and Bound Simplex\n" +
                 "\t4. Cutting Plane\n" +
-                "\t5. Branch and Bound Knapsack\n");
+                "\t5. Branch and Bound Knapsack\n\n" +
+                "\t6. None - Return to Main menu\n");
         }
 
-        private static void ConductSensitivityAnalysis(Table initialTable, Table optimalTable)
+        private static void ConductSensitivityAnalysis(Model model, Table initialTable, Table optimalTable)
         {
             bool applyAnalysis = false;
 
@@ -220,16 +242,16 @@ namespace LPR381_Project_GroupV5
                 Console.Clear();
                 Console.WriteLine($"\"{sensitivityAnalysis}\" is not \"Y/N\".\n" +
                    $"Please enter either Y or N");
-                ConductSensitivityAnalysis(initialTable, optimalTable);
+                ConductSensitivityAnalysis(model, initialTable, optimalTable);
             }
 
             if (applyAnalysis)
             {
-                DisplaySensitivityAnalysisMenu(initialTable, optimalTable);
+                DisplaySensitivityAnalysisMenu(model, initialTable, optimalTable);
             }
         }
 
-        private static void DisplaySensitivityAnalysisMenu(Table initialTable, Table optimalTable)
+        private static void DisplaySensitivityAnalysisMenu(Model model, Table initialTable, Table optimalTable)
         {
             Console.Write("Please select what you would like to be displayed/changed in the solution:\n" +
                 "\t(NBV = Non-Basic Variable, BV = Basic Variable, RHS = Right Hand Side)\n\n" +
@@ -243,12 +265,12 @@ namespace LPR381_Project_GroupV5
                 "\t7. Display NBV Column Range\n" +
                 "\t8. Change NBV Column\n" +
                 "\t9. Add an Activity (COlumn)\n" +
-                "\t10. Add a COnstraint (Row)\n" +
+                "\t10. Add a Constraint (Row)\n" +
                 "\t11. Display Shadow Prices\n" +
-                //Display in the end whether duality is weak or strong)
-                "\t12. Apply and Solve Duality\n");
+                "\t12. Apply and Solve Duality\n\n" +
+                "\t13. None - Return to Main menu\n");
 
-            Console.Write("Please enter a number between 1 and 12 (both included): ");
+            Console.Write("Please enter a number between 1 and 13 (both included): ");
             string input = Console.ReadLine();
 
             if (int.TryParse(input, out int userResponse))
@@ -259,84 +281,100 @@ namespace LPR381_Project_GroupV5
                         Console.Clear();
                         //Display NBV Range
                         SensitivityAnalysis.DisplayNBVRange(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 2:
                         Console.Clear();
                         //Change NBV
                         SensitivityAnalysis.ChangeNBV(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 3:
                         Console.Clear();
                         //Display BV Range
                         SensitivityAnalysis.DisplayBVRange(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 4:
                         Console.Clear();
                         //Change BV
                         SensitivityAnalysis.ChangeBV(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 5:
                         Console.Clear();
                         //Display RHS Range
                         SensitivityAnalysis.DisplayRHSRange(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 6:
                         Console.Clear();
                         //Change RHS
                         SensitivityAnalysis.ChangeRHS(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 7:
                         Console.Clear();
                         //Display NBV Column Range
                         SensitivityAnalysis.DisplayNBVColumnRange(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 8:
                         Console.Clear();
                         //Change NBV Column
                         SensitivityAnalysis.ChangeNBVColumn(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 9:
                         Console.Clear();
                         //Add Activity
                         SensitivityAnalysis.AddActivity(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 10:
                         Console.Clear();
                         //Add Constraint
                         SensitivityAnalysis.AddConstraint(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 11:
                         Console.Clear();
                         //Display Shadow Prices
                         SensitivityAnalysis.DisplayShadowPrices(initialTable, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                     case 12:
                         Console.Clear();
                         //Apply and Solve Duality
-                        SensitivityAnalysis.ApplyDuality(initialTable, optimalTable);
-                        SensitivityAnalysis.SolveDuality(initialTable, optimalTable);
-                        SensitivityAnalysis.StrongWeakDuality(initialTable, optimalTable);
+                        Model dualModel = SensitivityAnalysis.ApplyDuality(model);
+                        Console.WriteLine(dualModel.ToString()); 
+                        double dualWValue = SensitivityAnalysis.SolveDuality(dualModel);
+                        SensitivityAnalysis.StrongWeakDuality(dualWValue, optimalTable);
+                        ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
+                        break;
+                    case 13:
+                        Console.Clear();
+                        ReturnToMenu();
                         break;
                     default:
                         Console.Clear();
                         Console.WriteLine($"\"{userResponse}\" is not a valid option...\n" +
-                            $"Please enter a number that is between 1 and 12 (both included)");
-                        DisplaySensitivityAnalysisMenu(initialTable, optimalTable);
+                            $"Please enter a number that is between 1 and 13 (both included)");
+                        DisplaySensitivityAnalysisMenu(model, initialTable, optimalTable);
                         break;
                 }
-
-                ReturnToSensitivityAnalysisMenu(initialTable, optimalTable);
+              
             }
             else
             {
                 Console.Clear();
                 Console.WriteLine($"\"{userResponse}\" is not a number...\n" +
                     $"Please enter a number that is between 1 and 12 (both included)");
-                DisplaySensitivityAnalysisMenu(initialTable, optimalTable);
+                DisplaySensitivityAnalysisMenu(model, initialTable, optimalTable);
             }
         }
 
-        private static void ReturnToSensitivityAnalysisMenu(Table initialTable, Table optimalTable)
+        private static void ReturnToSensitivityAnalysisMenu(Model model, Table initialTable, Table optimalTable)
         {
             Thread.Sleep(2000);
             Console.Write("Do you want to return to the sensitivity analysis menu? (Y/N): ");
@@ -345,7 +383,7 @@ namespace LPR381_Project_GroupV5
             if (menu.ToUpper() == "Y")
             {
                 Console.Clear();
-                DisplaySensitivityAnalysisMenu(initialTable, optimalTable);
+                DisplaySensitivityAnalysisMenu(model, initialTable, optimalTable);
             }
             else if (menu.ToUpper() == "N")
             {
@@ -356,7 +394,7 @@ namespace LPR381_Project_GroupV5
                 Console.Clear();
                 Console.WriteLine($"\"{menu}\" is not \"Y/N\".\n" +
                     $"Please enter either Y or N");
-                ReturnToSensitivityAnalysisMenu(initialTable, optimalTable);
+                ReturnToSensitivityAnalysisMenu(model, initialTable, optimalTable);
             }
         }
 

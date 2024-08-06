@@ -11,13 +11,14 @@ namespace LPR381_Project_GroupV5
         public static List<Table> PrimalSimplex(Model model)
         {
             var tableList = new List<Table>();
-            Console.WriteLine("-----------------------------------------------");
-            Console.WriteLine(model.ToString());
-            Console.WriteLine("-----------------------------------------------");
-
             try
             {
                 var tableau = PutModelInCanonicalForm(model);
+                if(tableau == null)
+                {
+                    return null;
+                }
+
                 model.Results = new List<List<List<double>>>();  // Initialize the Results property
                 Solve(model, tableau);
                 model.IsSolved = true;
@@ -41,12 +42,6 @@ namespace LPR381_Project_GroupV5
                 if (constraint.Operator == ">=")
                 {
                     string error = "This problem cannot be solved with Primal Simplex - it does not support >= constraints.";
-                    Console.WriteLine(error);
-                    return null;
-                }
-                else if (constraint.Operator == "=")
-                {
-                    string error = "This problem cannot be solved with Knapsack - it does not support = constraints.";
                     Console.WriteLine(error);
                     return null;
                 }

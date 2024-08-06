@@ -24,7 +24,7 @@ namespace LPR381_Project_GroupV5
             Results = new List<List<List<double>>>();  // Ensure Results is initialized
         }
 
-        public Table(Model model, bool isInitial, bool isOptimal, bool isInfeasible, bool isUnbounded, bool isCandidate) : base(model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
+        public Table(Model model, bool isInitial, bool isOptimal, bool isInfeasible, bool isUnbounded, bool isCandidate) : base(model.MinMax, model.ObjectiveFunctionCoefficients, model.Constraints, model.SignRestrictions)
         {
             IsInitial = isInitial;
             IsOptimal = isOptimal;

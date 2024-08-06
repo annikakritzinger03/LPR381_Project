@@ -9,6 +9,10 @@ namespace LPR381_Project_GroupV5
     //Base class: What is firstly extracted from the text file
     internal class Model
     {
+        public string MinMax { get; set; }
+
+        //Will only be w when applying duality
+        public string ZW { get; set; }
         public double[] ObjectiveFunctionCoefficients { get; set; }
         public List<Constraint> Constraints { get; set; }
         public string[] SignRestrictions { get; set; }
@@ -24,11 +28,13 @@ namespace LPR381_Project_GroupV5
             Results = new List<List<List<double>>>();
         }
 
-        public Model(double[] objectiveFunctionCoefficients, List<Constraint> constraints, string[] signRetrictions)
+        public Model(string minMax, double[] objectiveFunctionCoefficients, List<Constraint> constraints, string[] signRestrictions)
         {
+            MinMax = minMax;
+            ZW = "z";
             ObjectiveFunctionCoefficients = objectiveFunctionCoefficients;
             Constraints = constraints;
-            SignRestrictions = signRetrictions;
+            SignRestrictions = signRestrictions;
             Results = new List<List<List<double>>>();
         }
 
@@ -43,7 +49,7 @@ namespace LPR381_Project_GroupV5
             string constraints = "";
             foreach (Constraint constraint in Constraints)
             {
-                constraints += constraint.ToString();
+                constraints += " " + constraint.ToString();
             }
 
             string restrictions = "";
@@ -52,7 +58,7 @@ namespace LPR381_Project_GroupV5
                 restrictions += " " + retriction;
             }
 
-            string display = $"Objective function:\n{objectiveFunction}\n" +
+            string display = $"Objective function:\n{MinMax} {ZW} ={objectiveFunction}\n" +
                 $"\nConstraints:\n{constraints}" +
                 $"\nSign restrictions:\n{restrictions.ToString()}\n";
             return display;

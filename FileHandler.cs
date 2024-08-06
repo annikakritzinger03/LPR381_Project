@@ -29,6 +29,7 @@ namespace LPR381_Project_GroupV5
                 counter++;
             }
 
+            string minMax = arr[0].Substring(0, Math.Min(3, arr[0].Length));
             string[] objectiveParts = arr[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
             double[] OFC = new double[objectiveParts.Length - 1];
             for (int i = 1; i < objectiveParts.Length; i++)
@@ -91,7 +92,7 @@ namespace LPR381_Project_GroupV5
             // Convert list to array for constraint restrictions
             string[] signRestrictions = signRestrictionsList.ToArray();
 
-            Model model = new Model(OFC, constraintsList, signRestrictions);
+            Model model = new Model(minMax, OFC, constraintsList, signRestrictions);
             return model;
         }
 
