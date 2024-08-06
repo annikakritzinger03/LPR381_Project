@@ -99,6 +99,11 @@ namespace LPR381_Project_GroupV5
                         Console.Clear();
                         //Primal Simplex algorithm implementation (canonical form, solve, display, output to .txt)
                         tableList = Algorithm.PrimalSimplex(model);
+                        foreach(Table table in tableList)
+                        {
+                            Console.WriteLine(table.ToString());
+                        }
+                        Algorithm.SaveResultsToFile(model);
                         break;
                     case 2:
                         Console.Clear();
@@ -129,7 +134,7 @@ namespace LPR381_Project_GroupV5
                         break;
                 }
 
-                 Table initialTable = new Table(), optimalTable = new Table();
+                Table initialTable = new Table(), optimalTable = new Table();
 
                 for (int i = 0; i < tableList.Count; i++)
                 {
@@ -143,7 +148,7 @@ namespace LPR381_Project_GroupV5
                     }
                 }
 
-                if(initialTable.IsInitial == false || optimalTable.IsOptimal == false)
+                if (initialTable.IsInitial == false || optimalTable.IsOptimal == false)
                 {
                     Console.WriteLine("Cannot conduct sensitivity analysis - there is no initial/optimal table.");
                     ReturnToMenu();
@@ -152,7 +157,7 @@ namespace LPR381_Project_GroupV5
                 {
                     //Implement Sensitivity analysis
                     ConductSensitivityAnalysis(initialTable, optimalTable);
-                }           
+                }
             }
             else
             {

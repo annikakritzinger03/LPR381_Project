@@ -7,9 +7,13 @@ namespace LPR381_Project_GroupV5
 {
     internal static class Algorithm
     {
+        private static string displayPrimal = "";
         public static List<Table> PrimalSimplex(Model model)
         {
             var tableList = new List<Table>();
+            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine(model.ToString());
+            Console.WriteLine("-----------------------------------------------");
 
             try
             {
@@ -20,12 +24,6 @@ namespace LPR381_Project_GroupV5
 
                 // Convert results to tableList
                 tableList = ConvertResultsToTables(model);
-
-                // Save results to file
-                string Path = "C:\\Users\\pathf\\Downloads\\results.txt";
-                SaveResultsToFile(model, Path);
-                Console.WriteLine($"Content successfully written to file \"{Path}\"");
-
             }
             catch (InvalidOperationException ex)
             {
@@ -37,12 +35,20 @@ namespace LPR381_Project_GroupV5
 
         private static List<List<double>> PutModelInCanonicalForm(Model model)
         {
-            // Check for any >= constraints and throw an exception
+            //Cases where Primal Simplex Algorithm would not work for the model
             foreach (var constraint in model.Constraints)
             {
                 if (constraint.Operator == ">=")
                 {
-                    throw new InvalidOperationException("The Primal Simplex method does not support >= constraints.");
+                    string error = "This problem cannot be solved with Primal Simplex - it does not support >= constraints.";
+                    Console.WriteLine(error);
+                    return null;
+                }
+                else if (constraint.Operator == "=")
+                {
+                    string error = "This problem cannot be solved with Knapsack - it does not support = constraints.";
+                    Console.WriteLine(error);
+                    return null;
                 }
             }
 
@@ -209,20 +215,21 @@ namespace LPR381_Project_GroupV5
             return tableList;
         }
 
-        private static void SaveResultsToFile(Model model, string filePath)
+        public static void SaveResultsToFile(Model model)
         {
-            using (StreamWriter writer = new StreamWriter(filePath))
+            displayPrimal += model.ToString();
+            displayPrimal += "\nPrimal Simplex Solution Steps:\n";
+            foreach (var step in model.Results)
             {
-                writer.WriteLine("Solution Steps:");
-                foreach (var step in model.Results)
+                foreach (var row in step)
                 {
-                    foreach (var row in step)
-                    {
-                        writer.WriteLine(string.Join("\t", row.Select(v => v.ToString("0.##"))));
-                    }
-                    writer.WriteLine(); // Add a blank line between tables for better readability
+                    displayPrimal += string.Join("\t", row.Select(v => v.ToString("0.##")));
+                    displayPrimal += "\n";
                 }
+                displayPrimal += "\n\n"; // Add a blank line between tables for better readability
             }
+
+            FileHandler.WriteToFile(displayPrimal);
         }
 
         public static List<Table> RevisedPrimalSimplex(Model model)

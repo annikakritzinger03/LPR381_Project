@@ -53,8 +53,8 @@ namespace LPR381_Project_GroupV5
             }
 
             string display = $"Objective function:\n{objectiveFunction}\n" +
-                $"Constraints:\n{constraints}" +
-                $"Sign restrictions:\n{restrictions.ToString()}\n";
+                $"\nConstraints:\n{constraints}" +
+                $"\nSign restrictions:\n{restrictions.ToString()}\n";
             return display;
         }
     }

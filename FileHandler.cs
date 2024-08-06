@@ -9,6 +9,9 @@ namespace LPR381_Project_GroupV5
 {
     internal static class FileHandler
     {
+        //Text file where the results will be written to (under bin/Debug/net6.0)
+        public static string fileName = "results.txt";
+
         public static Model ReadFromFile(string filePath)
         {
             var lines = File.ReadAllLines(filePath);
@@ -68,9 +71,9 @@ namespace LPR381_Project_GroupV5
                         {
                             coefficientsList.Add(double.Parse(parts[j]));
                         }
-               
+
                     }
-                    double rhs = double.Parse(parts[parts.Length-1]);
+                    double rhs = double.Parse(parts[parts.Length - 1]);
                     constraintsList.Add(new Constraint(coefficientsList, operatorSymbol, rhs));
                 }
             }
@@ -78,8 +81,8 @@ namespace LPR381_Project_GroupV5
             // Handle the last line separately
             if (arr.Length > 1)
             {
-                string[] parts = arr[arr.Length-1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                foreach(string part in parts)
+                string[] parts = arr[arr.Length - 1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts)
                 {
                     signRestrictionsList.Add(part);
                 }
@@ -94,8 +97,6 @@ namespace LPR381_Project_GroupV5
 
         public static void WriteToFile(string contents)
         {
-            string fileName = "C:\\Users\\pathf\\Downloads\\results.txt";
-
             try
             {
                 // Create a new file and write the content to it
@@ -105,25 +106,6 @@ namespace LPR381_Project_GroupV5
                 }
 
                 Console.WriteLine($"Content successfully written to file \"{fileName}\"");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while writing to the file: {ex.Message}");
-            }
-        }
-
-        public static void WriteToFile2(string contents)
-        {
- 
-
-            try
-            {
-                using (StreamWriter writer = new StreamWriter("C:\\Users\\pathf\\Downloads\\results.txt", false))
-                {
-                    writer.WriteLine(contents);
-                }
-
-                Console.WriteLine($"Content successfully written to file C:\\\\Users\\\\pathf\\\\Downloads\\\\results.txt");
             }
             catch (Exception ex)
             {
