@@ -171,12 +171,12 @@ namespace LPR381_Project_GroupV5
             //Calculate and display Duality model with Primal Simplex
             List<Table> tableList = Algorithm.PrimalSimplex(dualModel);
 
-            Console.WriteLine("-----------------------------------------------\n");
+            Console.WriteLine("----------------------------------------------------------------\n");
             foreach (Table table in tableList)
             {
                 Console.WriteLine(table.ToString());
             }
-            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
 
             //Retrieve and display Duality w value
             double dualWValue = Math.Round(tableList[tableList.Count - 1].ObjectiveFunction[tableList[tableList.Count - 1].ObjectiveFunction.Count - 1], 3);

@@ -283,6 +283,11 @@ namespace LPR381_Project_GroupV5
             var indexedRatios = ratios.Select((value, index) => new { Value = value, Index = index }).ToList();
             var sortedIndexedRatios = indexedRatios.OrderByDescending(x => x.Value).ToList();
 
+            if (model.MinMax == "min")
+            {
+                sortedIndexedRatios.Reverse();
+            }
+
             for (int i = 0; i < sortedIndexedRatios.Count; i++)
             {
                 ranks.Add(sortedIndexedRatios[i].Index);
@@ -299,7 +304,7 @@ namespace LPR381_Project_GroupV5
             KnapsackAlgorithm("", ranks, new List<List<int>>(), limit, values, weights);
 
             //d=Display the optimal solution's decision variables and z value
-            DisplayOptimalSolution();
+            DisplayOptimalSolution(model);
 
             //Return string that contains the model, ratios/ranks, tables, and solution
             return displayKnapsack;
@@ -329,7 +334,6 @@ namespace LPR381_Project_GroupV5
             };
 
             // Display the header
-            Console.Write("-----------------------------------------------");
             string header = $"\n{columnNames[0].PadRight(columnWidths[0] + 2)}{columnNames[1].PadRight(columnWidths[1] + 2)}{columnNames[2].PadRight(columnWidths[2] + 2)}{columnNames[3].PadRight(columnWidths[3] + 2)}{columnNames[4].PadRight(columnWidths[4] + 2)}{columnNames[5].PadRight(columnWidths[5] + 2)}\n";
             Console.Write(header);
             displayKnapsack += header;
@@ -342,7 +346,7 @@ namespace LPR381_Project_GroupV5
                 Console.Write(row);
                 rows += row;
             }
-            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
             displayKnapsack += rows;
         }
 
@@ -528,36 +532,65 @@ namespace LPR381_Project_GroupV5
             }
             Console.WriteLine();
         }
-        private static void DisplayOptimalSolution()
+        private static void DisplayOptimalSolution(Model model)
         {
-            //Find the best combination
-            var maxVal = itemCombinationsValues.Max(c => (double)c[1]);
-            var maxIndex = itemCombinationsValues.FindIndex(c => (double)c[1] == maxVal);
-
-            var bestCombinations = (List<List<int>>)itemCombinationsValues[maxIndex][0];
-            for (int i = 0; i < bestCombinations.Count; i++)
-            {
-                bestCombinations[i][0] += 1; // Adjust index
-            }
-
             // Print optimal knapsack items
-            Console.WriteLine("-----------------------------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
             Console.WriteLine("Optimal knapsack solution:");
             displayKnapsack += "\nOptimal knapsack solution:\n";
 
-            string combinations = "";
-            foreach (var item in bestCombinations)
+            //Find the best combination (depending on whether the solution is min or max)
+            if (model.MinMax == "max")
             {
-                string combination = string.Join(" = ", item);
-                Console.WriteLine(combination);
-                combinations += combination + "\n";
-            }
-            displayKnapsack += combinations;
+                var maxVal = itemCombinationsValues.Max(c => (double)c[1]);
+                var maxIndex = itemCombinationsValues.FindIndex(c => (double)c[1] == maxVal);
 
-            string optimalZ = "Optimal z value: " + maxVal;
-            Console.WriteLine(optimalZ);
-            displayKnapsack += optimalZ + "\n";
-            Console.WriteLine("-----------------------------------------------");
+                var bestCombinations = (List<List<int>>)itemCombinationsValues[maxIndex][0];
+                for (int i = 0; i < bestCombinations.Count; i++)
+                {
+                    bestCombinations[i][0] += 1; // Adjust index
+                }
+
+                string combinations = "";
+                foreach (var item in bestCombinations)
+                {
+                    string combination = string.Join(" = ", item);
+                    Console.WriteLine(combination);
+                    combinations += combination + "\n";
+                }
+                displayKnapsack += combinations;
+
+                string optimalZ = "Optimal z value (max problem): " + maxVal;
+                Console.WriteLine(optimalZ);
+                displayKnapsack += optimalZ + "\n";
+                Console.WriteLine("----------------------------------------------------------------");
+            }
+            else
+            {
+                var minVal = itemCombinationsValues.Min(c => (double)c[1]);
+                var minIndex = itemCombinationsValues.FindIndex(c => (double)c[1] == minVal);
+
+                var bestCombinations = (List<List<int>>)itemCombinationsValues[minIndex][0];
+                for (int i = 0; i < bestCombinations.Count; i++)
+                {
+                    bestCombinations[i][0] += 1; // Adjust index
+                }
+
+                string combinations = "";
+                foreach (var item in bestCombinations)
+                {
+                    string combination = string.Join(" = ", item);
+                    Console.WriteLine(combination);
+                    combinations += combination + "\n";
+                }
+                displayKnapsack += combinations;
+
+                string optimalZ = "Optimal z value (min problem): " + minVal;
+                Console.WriteLine(optimalZ);
+                displayKnapsack += optimalZ + "\n";
+                Console.WriteLine("----------------------------------------------------------------");
+            }
+            
         }
     }
 }
