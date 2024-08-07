@@ -146,29 +146,37 @@ namespace LPR381_Project_GroupV5
                         break;
                 }
 
-                Table initialTable = new Table(), optimalTable = new Table();
-
-                for (int i = 0; i < tableList.Count; i++)
+                if (input == "1" || input == "2")
                 {
-                    if (tableList[i].IsInitial == true)
-                    {
-                        initialTable = tableList[i];
-                    }
-                    else if (tableList[i].IsOptimal == true)
-                    {
-                        optimalTable = tableList[i];
-                    }
-                }
+                    Table initialTable = new Table(), optimalTable = new Table();
 
-                if (initialTable.IsInitial == false || optimalTable.IsOptimal == false)
-                {
-                    Console.WriteLine("Cannot conduct sensitivity analysis - there is no initial/optimal table.");
-                    ReturnToMenu();
+                    for (int i = 0; i < tableList.Count; i++)
+                    {
+                        if (tableList[i].IsInitial == true)
+                        {
+                            initialTable = tableList[i];
+                        }
+                        else if (tableList[i].IsOptimal == true)
+                        {
+                            optimalTable = tableList[i];
+                        }
+                    }
+
+                    if (initialTable.IsInitial == false || optimalTable.IsOptimal == false)
+                    {
+                        Console.WriteLine("Cannot conduct sensitivity analysis - there is no initial/optimal table.");
+                        ReturnToMenu();
+                    }
+                    else
+                    {
+                        //Implement Sensitivity analysis
+                        ConductSensitivityAnalysis(model, initialTable, optimalTable);
+                    }
                 }
                 else
                 {
-                    //Implement Sensitivity analysis
-                    ConductSensitivityAnalysis(model, initialTable, optimalTable);
+                    Console.WriteLine("Cannot conduct sensitivity analysis - the chosen algorithm was not primal simplex or revised primal simplex.");
+                    ReturnToMenu();
                 }
             }
             else
@@ -268,7 +276,7 @@ namespace LPR381_Project_GroupV5
                 "\t10. Add a Constraint (Row)\n" +
                 "\t11. Display Shadow Prices\n" +
                 "\t12. Apply and Solve Duality\n\n" +
-                "\t13. None - Return to Main menu\n");
+                "\t13. None - Return to Main menu\n\n");
 
             Console.Write("Please enter a number between 1 and 13 (both included): ");
             string input = Console.ReadLine();
